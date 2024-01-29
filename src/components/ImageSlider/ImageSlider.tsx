@@ -1,26 +1,36 @@
 import React, { useState, useEffect, ReactElement } from "react";
 import type { ImageData } from "../../types";
-import Canvas from "../Canvas";
+import { useImageSlider } from "../../hooks/useImageSlider/useImageSlider";
+import Canvas from "../Canvas/Canvas";
 
 import "./ImageSlider.css";
 
+const images: ImageData[] = [
+	{ src: "/images/cat-1.png", title: "cat 1", width: 640, height: 400 },
+	{ src: "/images/cat-2.png", title: "cat 2", width: 640, height: 348 },
+	{ src: "/images/cat-3.png", title: "cat 3", width: 500, height: 398 },
+	{ src: "/images/cat-4.png", title: "cat 4", width: 200, height: 399 },
+];
+
 export default function ImageSlider(): ReactElement {
-	const [images, setImages] = useState<ImageData[]>([]);
+	const [dragOffset, setDragOffset] = useState<number>(0);
+	const {
+		handleMouseDown,
+		handleMouseMove,
+		handleMouseUp,
+		handleMouseLeave,
+		handleTouchStart,
+		handleTouchMove,
+		handleTouchEnd,
+		isDragging,
+	} = useImageSlider({
+		imageCount: images.length,
+		setDragOffset: setDragOffset,
+	});
 
 	useEffect(() => {
-		const loadedImages: ImageData[] = [
-			{ src: "/images/cat-1.png", title: "cat 1" },
-			{ src: "/images/cat-2.png", title: "cat 2" },
-			{ src: "/images/cat-3.png", title: "cat 3" },
-			{ src: "/images/cat-4.png", title: "cat 4" },
-		];
-
-		setImages(loadedImages);
-	}, []);
-
-	useEffect(() => {
-		const preloadImages = async () => {
-			const promises = images.map((image) => {
+		Promise.all(
+			images.map((image) => {
 				return new Promise<void>((resolve, reject) => {
 					const img = new Image();
 					img.src = image.src;
@@ -28,31 +38,27 @@ export default function ImageSlider(): ReactElement {
 					img.onerror = () =>
 						reject(new Error(`Failed to load image at ${image.src}`));
 				});
-			});
+			})
+		);
+	}, []);
 
-			try {
-				await Promise.all(promises);
-				console.log("All images preloaded");
-			} catch (error) {
-				console.error("Error preloading images", error);
-			}
-		};
-
-		if (images.length > 0) {
-			preloadImages();
-		}
-	}, [images]);
+	if (!images.length) return <></>;
 
 	return (
-		<div className="image-slider-container">
-			<Canvas className="image-slider-canvas" images={images} />
-
-			<div className="slider-controls">
-				<button className="prev-button">Previous</button>
-				<button className="next-button">Next</button>
-			</div>
-
-			<div className="image-indicators"></div>
+		<div className="container" data-testid="image-slider-container">
+			<Canvas
+				className="canvas"
+				images={images}
+				isDragging={isDragging}
+				dragOffset={dragOffset}
+				onMouseDown={handleMouseDown}
+				onMouseMove={handleMouseMove}
+				onMouseUp={handleMouseUp}
+				onMouseLeave={handleMouseLeave}
+				onTouchStart={handleTouchStart}
+				onTouchMove={handleTouchMove}
+				onTouchEnd={handleTouchEnd}
+			/>
 		</div>
 	);
 }

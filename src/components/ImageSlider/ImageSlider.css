@@ -1,4 +1,4 @@
-.image-slider-container {
+.container {
 	width: 100%; /* Adjust as needed */
 	max-width: 600px; /* Adjust as needed */
 	margin: auto;
@@ -6,7 +6,7 @@
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: adds shadow for depth */
 }
 
-.image-slider-canvas {
+.canvas {
 	width: 100%; /* Ensure it fills the container */
 	height: auto; /* Adjust based on aspect ratio of images */
 	display: block; /* Removes extra space below canvas */
